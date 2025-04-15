@@ -12,7 +12,11 @@ import { PlaygroundConnect } from "@/components/PlaygroundConnect";
 import Playground from "@/components/playground/Playground";
 import { PlaygroundToast, ToastType } from "@/components/toast/PlaygroundToast";
 import { ConfigProvider, useConfig } from "@/hooks/useConfig";
-import { ConnectionMode, ConnectionProvider, useConnection } from "@/hooks/useConnection";
+import {
+  ConnectionMode,
+  ConnectionProvider,
+  useConnection,
+} from "@/hooks/useConnection";
 import { useMemo } from "react";
 import { ToastProvider, useToast } from "@/components/toast/ToasterProvider";
 
@@ -25,6 +29,8 @@ const themeColors = [
   "rose",
   "pink",
   "teal",
+  "red",
+  "white",
 ];
 
 const inter = Inter({ subsets: ["latin"] });
@@ -44,8 +50,8 @@ export default function Home() {
 export function HomeInner() {
   const { shouldConnect, wsUrl, token, mode, connect, disconnect } =
     useConnection();
-  
-  const {config} = useConfig();
+
+  const { config } = useConfig();
   const { toastMessage, setToastMessage } = useToast();
 
   const handleConnect = useCallback(
@@ -59,17 +65,15 @@ export function HomeInner() {
     if (process.env.NEXT_PUBLIC_LIVEKIT_URL) {
       return true;
     }
-    if(wsUrl) {
+    if (wsUrl) {
       return true;
     }
     return false;
-  }, [wsUrl])
+  }, [wsUrl]);
 
   return (
     <>
       <Head>
-        <title>{config.title}</title>
-        <meta name="description" content={config.description} />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"

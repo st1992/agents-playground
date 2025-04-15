@@ -151,7 +151,7 @@ export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
         video: boolToString(us.outputs.video),
         audio: boolToString(us.outputs.audio),
         chat: boolToString(us.chat),
-        theme_color: us.theme_color || "cyan",
+        theme_color: us.theme_color || "white",
       });
       // Note: We don't set ws_url and token to the URL on purpose
       router.replace("/#" + obj.toString());
