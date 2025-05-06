@@ -1,0 +1,38 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+.next
+out
+
+# Version control
+.git
+.github
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Development & Environment
+.env
+.env.development
+.env.production
+.env.test
+.vscode
+.idea
+*.log
+.DS_Store
+.vercel
+.coverage
+.nyc_output
+coverage
+tsconfig.tsbuildinfo
+
+# Misc
+Dockerfile
+docker-compose.yml
+.dockerignore 
