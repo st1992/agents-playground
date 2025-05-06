@@ -24,12 +24,14 @@ import {
   useTracks,
   useVoiceAssistant,
   useRoomContext,
+  TrackToggle,
 } from "@livekit/components-react";
 import { ConnectionState, LocalParticipant, Track } from "livekit-client";
 import { QRCodeSVG } from "qrcode.react";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import tailwindTheme from "../../lib/tailwindTheme.preval";
 import { EditableNameValueRow } from "@/components/config/NameValueRow";
+import { PlaygroundDeviceSelector } from "@/components/playground/PlaygroundDeviceSelector";
 
 export interface PlaygroundMeta {
   name: string;
@@ -65,8 +67,9 @@ export default function Playground({
 
   useEffect(() => {
     if (roomState === ConnectionState.Connected) {
-      localParticipant.setCameraEnabled(config.settings.inputs.camera);
-      localParticipant.setMicrophoneEnabled(config.settings.inputs.mic);
+      // Only enable microphone, never enable camera
+      localParticipant.setCameraEnabled(false);
+      localParticipant.setMicrophoneEnabled(false);
     }
   }, [config, localParticipant, roomState]);
 
@@ -207,197 +210,32 @@ export default function Playground({
   ]);
 
   const chatTileContent = useMemo(() => {
-    if (voiceAssistant.agent) {
-      return (
-        <TranscriptionTile
-          agentAudioTrack={voiceAssistant.audioTrack}
-          accentColor={config.settings.theme_color}
-        />
-      );
-    }
-    return <></>;
-  }, [config.settings.theme_color, voiceAssistant.audioTrack, voiceAssistant.agent]);
+    return (
+      <div className="flex flex-col h-full">
+        <div className="flex-grow overflow-y-auto">
+          <TranscriptionTile
+            agentAudioTrack={voiceAssistant.audioTrack}
+            accentColor={config.settings.theme_color}
+          />
+        </div>
+      </div>
+    );
+  }, [config.settings.theme_color, voiceAssistant.audioTrack]);
 
   const handleRpcCall = useCallback(async () => {
     if (!voiceAssistant.agent || !room) return;
-    
+
     try {
       const response = await room.localParticipant.performRpc({
         destinationIdentity: voiceAssistant.agent.identity,
         method: rpcMethod,
         payload: rpcPayload,
       });
-      console.log('RPC response:', response);
+      console.log("RPC response:", response);
     } catch (e) {
-      console.error('RPC call failed:', e);
+      console.error("RPC call failed:", e);
     }
   }, [room, rpcMethod, rpcPayload, voiceAssistant.agent]);
-
-  const settingsTileContent = useMemo(() => {
-    return (
-      <div className="flex flex-col gap-4 h-full w-full items-start overflow-y-auto">
-        {config.description && (
-          <ConfigurationPanelItem title="Description">
-            {config.description}
-          </ConfigurationPanelItem>
-        )}
-
-        <ConfigurationPanelItem title="Settings">
-          <div className="flex flex-col gap-4">
-            <EditableNameValueRow
-              name="Room"
-              value={roomState === ConnectionState.Connected ? name : config.settings.room_name}
-              valueColor={`${config.settings.theme_color}-500`}
-              onValueChange={(value) => {
-                const newSettings = { ...config.settings };
-                newSettings.room_name = value;
-                setUserSettings(newSettings);
-              }}
-              placeholder="Enter room name"
-              editable={roomState !== ConnectionState.Connected}
-            />
-            <EditableNameValueRow
-              name="Participant"
-              value={roomState === ConnectionState.Connected ? 
-                (localParticipant?.identity || '') : 
-                (config.settings.participant_name || '')}
-              valueColor={`${config.settings.theme_color}-500`}
-              onValueChange={(value) => {
-                const newSettings = { ...config.settings };
-                newSettings.participant_name = value;
-                setUserSettings(newSettings);
-              }}
-              placeholder="Enter participant id"
-              editable={roomState !== ConnectionState.Connected}
-            />
-          </div>
-          <div className="flex flex-col gap-2 mt-4">
-            <div className="text-xs text-gray-500 mt-2">RPC Method</div>
-            <input
-              type="text"
-              value={rpcMethod}
-              onChange={(e) => setRpcMethod(e.target.value)}
-              className="w-full text-white text-sm bg-transparent border border-gray-800 rounded-sm px-3 py-2"
-              placeholder="RPC method name"
-            />
-            
-            <div className="text-xs text-gray-500 mt-2">RPC Payload</div>
-            <textarea
-              value={rpcPayload}
-              onChange={(e) => setRpcPayload(e.target.value)}
-              className="w-full text-white text-sm bg-transparent border border-gray-800 rounded-sm px-3 py-2"
-              placeholder="RPC payload"
-              rows={2}
-            />
-            
-            <button
-              onClick={handleRpcCall}
-              disabled={!voiceAssistant.agent || !rpcMethod}
-              className={`mt-2 px-2 py-1 rounded-sm text-xs 
-                ${voiceAssistant.agent && rpcMethod 
-                  ? `bg-${config.settings.theme_color}-500 hover:bg-${config.settings.theme_color}-600` 
-                  : 'bg-gray-700 cursor-not-allowed'
-                } text-white`}
-            >
-              Perform RPC Call
-            </button>
-          </div>
-        </ConfigurationPanelItem>
-        <ConfigurationPanelItem title="Status">
-          <div className="flex flex-col gap-2">
-            <NameValueRow
-              name="Room connected"
-              value={
-                roomState === ConnectionState.Connecting ? (
-                  <LoadingSVG diameter={16} strokeWidth={2} />
-                ) : (
-                  roomState.toUpperCase()
-                )
-              }
-              valueColor={
-                roomState === ConnectionState.Connected
-                  ? `${config.settings.theme_color}-500`
-                  : "gray-500"
-              }
-            />
-            <NameValueRow
-              name="Agent connected"
-              value={
-                voiceAssistant.agent ? (
-                  "TRUE"
-                ) : roomState === ConnectionState.Connected ? (
-                  <LoadingSVG diameter={12} strokeWidth={2} />
-                ) : (
-                  "FALSE"
-                )
-              }
-              valueColor={
-                voiceAssistant.agent
-                  ? `${config.settings.theme_color}-500`
-                  : "gray-500"
-              }
-            />
-          </div>
-        </ConfigurationPanelItem>
-        {localVideoTrack && (
-          <ConfigurationPanelItem
-            title="Camera"
-            deviceSelectorKind="videoinput"
-          >
-            <div className="relative">
-              <VideoTrack
-                className="rounded-sm border border-gray-800 opacity-70 w-full"
-                trackRef={localVideoTrack}
-              />
-            </div>
-          </ConfigurationPanelItem>
-        )}
-        {localMicTrack && (
-          <ConfigurationPanelItem
-            title="Microphone"
-            deviceSelectorKind="audioinput"
-          >
-            <AudioInputTile trackRef={localMicTrack} />
-          </ConfigurationPanelItem>
-        )}
-        <div className="w-full">
-          <ConfigurationPanelItem title="Color">
-            <ColorPicker
-              colors={themeColors}
-              selectedColor={config.settings.theme_color}
-              onSelect={(color) => {
-                const userSettings = { ...config.settings };
-                userSettings.theme_color = color;
-                setUserSettings(userSettings);
-              }}
-            />
-          </ConfigurationPanelItem>
-        </div>
-        {config.show_qr && (
-          <div className="w-full">
-            <ConfigurationPanelItem title="QR Code">
-              <QRCodeSVG value={window.location.href} width="128" />
-            </ConfigurationPanelItem>
-          </div>
-        )}
-      </div>
-    );
-  }, [
-    config.description,
-    config.settings,
-    config.show_qr,
-    localParticipant,
-    name,
-    roomState,
-    localVideoTrack,
-    localMicTrack,
-    themeColors,
-    setUserSettings,
-    voiceAssistant.agent,
-    rpcMethod,
-    rpcPayload,
-    handleRpcCall,
-  ]);
 
   let mobileTabs: PlaygroundTab[] = [];
   if (config.settings.outputs.video) {
@@ -444,7 +282,7 @@ export default function Playground({
         className="h-full w-full basis-1/4 items-start overflow-y-auto flex"
         childrenClassName="h-full grow items-start"
       >
-        {settingsTileContent}
+        {/* settingsTileContent */}
       </PlaygroundTile>
     ),
   });
@@ -452,7 +290,7 @@ export default function Playground({
   return (
     <>
       <PlaygroundHeader
-        title={config.title}
+        title="Cosmos Agent"
         logo={logo}
         githubLink={config.github_link}
         height={headerHeight}
@@ -466,55 +304,26 @@ export default function Playground({
         className={`flex gap-4 py-4 grow w-full selection:bg-${config.settings.theme_color}-900`}
         style={{ height: `calc(100% - ${headerHeight}px)` }}
       >
-        <div className="flex flex-col grow basis-1/2 gap-4 h-full lg:hidden">
-          <PlaygroundTabbedTile
-            className="h-full"
-            tabs={mobileTabs}
-            initialTab={mobileTabs.length - 1}
-          />
-        </div>
-        <div
-          className={`flex-col grow basis-1/2 gap-4 h-full hidden lg:${
-            !config.settings.outputs.audio && !config.settings.outputs.video
-              ? "hidden"
-              : "flex"
-          }`}
-        >
-          {config.settings.outputs.video && (
-            <PlaygroundTile
-              title="Video"
-              className="w-full h-full grow"
-              childrenClassName="justify-center"
-            >
-              {videoTileContent}
-            </PlaygroundTile>
-          )}
-          {config.settings.outputs.audio && (
-            <PlaygroundTile
-              title="Audio"
-              className="w-full h-full grow"
-              childrenClassName="justify-center"
-            >
-              {audioTileContent}
-            </PlaygroundTile>
-          )}
+        <div className="flex flex-col grow basis-3/4 gap-4 h-full">
+          <PlaygroundTile
+            title="Miro Board"
+            className="w-full h-full grow"
+            childrenClassName="justify-center"
+          >
+            <iframe
+              width="100%"
+              height="100%"
+              src="https://miro.com/app/live-embed/uXjVIAZgflo=/?moveToViewport=-1644,-694,3072,1619&embedId=486404545426"
+              frameBorder="0"
+              scrolling="no"
+              allow="fullscreen; clipboard-read; clipboard-write"
+              allowFullScreen
+            />
+          </PlaygroundTile>
         </div>
 
-        {config.settings.chat && (
-          <PlaygroundTile
-            title="Chat"
-            className="h-full grow basis-1/4 hidden lg:flex"
-          >
-            {chatTileContent}
-          </PlaygroundTile>
-        )}
-        <PlaygroundTile
-          padding={false}
-          backgroundColor="gray-950"
-          className="h-full w-full basis-1/4 items-start overflow-y-auto hidden max-w-[480px] lg:flex"
-          childrenClassName="h-full grow items-start"
-        >
-          {settingsTileContent}
+        <PlaygroundTile title="Chat" className="h-full basis-1/4 flex">
+          {chatTileContent}
         </PlaygroundTile>
       </div>
     </>

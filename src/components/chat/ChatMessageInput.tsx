@@ -57,11 +57,8 @@ export const ChatMessageInput = ({
   }, [hiddenInputRef, message, windowSize.width]);
 
   return (
-    <div
-      className="flex flex-col gap-2 border-t border-t-gray-800"
-      style={{ height: height }}
-    >
-      <div className="flex flex-row pt-3 gap-2 items-center relative">
+    <div className="flex-grow relative h-full">
+      <div className="flex flex-row items-center relative w-full h-full">
         <div
           className={`w-2 h-4 bg-${inputHasFocus ? accentColor : "gray"}-${
             inputHasFocus ? 500 : 800
@@ -79,7 +76,7 @@ export const ChatMessageInput = ({
         ></div>
         <input
           ref={inputRef}
-          className={`w-full text-xs caret-transparent bg-transparent opacity-25 text-gray-300 p-2 pr-6 rounded-sm focus:opacity-100 focus:outline-none focus:border-${accentColor}-700 focus:ring-1 focus:ring-${accentColor}-700`}
+          className={`w-full h-10 text-xs caret-transparent bg-gray-900 opacity-25 text-gray-300 p-2 pr-10 rounded-sm focus:opacity-100 focus:outline-none focus:border-${accentColor}-700 focus:ring-1 focus:ring-${accentColor}-700 overflow-hidden text-ellipsis whitespace-nowrap`}
           style={{
             paddingLeft: message.length > 0 ? "12px" : "24px",
             caretShape: "block",
@@ -110,11 +107,26 @@ export const ChatMessageInput = ({
         <button
           disabled={message.length === 0 || !onSend}
           onClick={handleSend}
-          className={`text-xs uppercase text-${accentColor}-500 hover:bg-${accentColor}-950 p-2 rounded-md opacity-${
+          className={`absolute right-2 top-1/2 -translate-y-1/2 text-xs p-2 rounded-md opacity-${
             message.length > 0 ? 100 : 25
-          } pointer-events-${message.length > 0 ? "auto" : "none"}`}
+          } pointer-events-${
+            message.length > 0 ? "auto" : "none"
+          } hover:bg-${accentColor}-950`}
         >
-          Send
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={`currentColor`}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={`text-${accentColor}-500`}
+          >
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
         </button>
       </div>
     </div>

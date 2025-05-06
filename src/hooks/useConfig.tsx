@@ -40,7 +40,7 @@ export type UserSettings = {
 
 // Fallback if NEXT_PUBLIC_APP_CONFIG is not set
 const defaultConfig: AppConfig = {
-  title: "LiveKit Agents Playground",
+  title: "Cosmos Agent",
   description: "A virtual workbench for testing multimodal AI agents.",
   video_fit: "cover",
   settings: {
@@ -48,12 +48,12 @@ const defaultConfig: AppConfig = {
     theme_color: "cyan",
     chat: true,
     inputs: {
-      camera: true,
+      camera: false,
       mic: true,
     },
     outputs: {
-      audio: true,
-      video: true,
+      audio: false,
+      video: false,
     },
     ws_url: "",
     token: "",

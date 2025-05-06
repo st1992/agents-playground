@@ -48,7 +48,7 @@ export function TranscriptionTile({
         )
       );
     }
-    
+
     localMessages.segments.forEach((s) =>
       transcripts.set(
         s.id,
