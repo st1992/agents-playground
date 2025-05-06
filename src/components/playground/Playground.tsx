@@ -304,6 +304,10 @@ export default function Playground({
         className={`flex gap-4 py-4 grow w-full selection:bg-${config.settings.theme_color}-900`}
         style={{ height: `calc(100% - ${headerHeight}px)` }}
       >
+        <PlaygroundTile title="Chat" className="h-full basis-1/4 flex">
+          {chatTileContent}
+        </PlaygroundTile>
+
         <div className="flex flex-col grow basis-3/4 gap-4 h-full">
           <PlaygroundTile
             title="Miro Board"
@@ -321,10 +325,6 @@ export default function Playground({
             />
           </PlaygroundTile>
         </div>
-
-        <PlaygroundTile title="Chat" className="h-full basis-1/4 flex">
-          {chatTileContent}
-        </PlaygroundTile>
       </div>
     </>
   );
