@@ -290,7 +290,7 @@ export default function Playground({
   return (
     <>
       <PlaygroundHeader
-        title="Cosmos Agent"
+        title="Agent"
         logo={logo}
         githubLink={config.github_link}
         height={headerHeight}

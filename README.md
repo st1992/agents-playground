@@ -8,7 +8,7 @@
 
 <!--END_BANNER_IMAGE-->
 
-# Cosmos Agent
+# Agent
 
 <!--BEGIN_DESCRIPTION-->
 

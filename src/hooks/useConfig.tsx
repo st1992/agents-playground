@@ -40,7 +40,7 @@ export type UserSettings = {
 
 // Fallback if NEXT_PUBLIC_APP_CONFIG is not set
 const defaultConfig: AppConfig = {
-  title: "Cosmos Agent",
+  title: "Agent",
   description: "A virtual workbench for testing multimodal AI agents.",
   video_fit: "cover",
   settings: {
